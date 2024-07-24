@@ -5,6 +5,8 @@ import userModel from "./userModel";
 import { sign } from "jsonwebtoken";
 import { config } from "../config/config";
 import { User } from "./userTypes";
+import { AuthRequest } from "../middlewares/authenticate";
+import mongoose from "mongoose";
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   const { name, email, password } = req.body;
@@ -95,4 +97,41 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { createUser, loginUser };
+const updateAccountDetails = async (req: Request, res: Response, next: NextFunction) => {
+  console.log("here in updateAccout Details");
+
+  const { email, oldPassword, newPassword } = req.body;
+
+  // Check if at least one field is provided
+  if (!oldPassword && !email && newPassword) {
+    return next(createHttpError(400, "Please provide all the details"));
+  }
+  //check if the user exists
+  const user = await userModel.findOne({ email });
+  if (!user) {
+    return next(createHttpError(404, "User not found."));
+  }
+  //check if the password is correct
+  console.log("yha tk to phuch gye");
+  console.log("email", email);
+  console.log("oldPassword", oldPassword);
+  console.log("NewPassword", newPassword);
+
+  const isMatch = await bcrypt.compare(oldPassword, user.password);
+  if (!isMatch) {
+    return next(createHttpError(400, "Username or password incorrect!"));
+  }
+  //update the user details
+  try {
+    const updatedUser = await userModel.findOneAndUpdate(
+      { email },
+      { $set: { email, password: newPassword } },
+      { new: true }
+    );
+    return res.json({ message: "User details updated successfully" });
+  } catch (error) {
+    return next(createHttpError(500, "Error in updating user details"));
+  }
+};
+
+export { createUser, loginUser, updateAccountDetails };
