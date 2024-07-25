@@ -150,7 +150,7 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
   res.json(updatedBook);
 };
 
-const listBooks = async (req: Request, res: Response, next: NextFunction) => {
+const listMyBooks = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // todo: add pagination.
     const _req = req as AuthRequest;
@@ -184,6 +184,18 @@ const listBooks = async (req: Request, res: Response, next: NextFunction) => {
     return next(createHttpError(500, "Error while getting a book"));
   }
 };
+const listAllBooks = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // todo: add pagination.
+    const books = await bookModel.find();
+    console.log(books);
+
+
+    res.json(books);
+  } catch (err) {
+    return next(createHttpError(500, "Error while getting a book"));
+  }
+};
 
 
 const getSingleBook = async (
@@ -197,7 +209,29 @@ const getSingleBook = async (
   if (!mongoose.isValidObjectId(bookId)) return next(createHttpError(400, "A valid bookid is required"));
 
   try {
-    const book = await bookModel.findOne({ _id: bookId });
+
+    const book = await bookModel.aggregate([
+      {
+        $match: { _id: new mongoose.Types.ObjectId(bookId) }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "author",
+          foreignField: "_id",
+          as: "author",
+          pipeline: [{
+            $project: {
+              name: 1,
+              email: 1
+            }
+          }]
+        }
+      },
+      {
+        $unwind: "$author"  // Flatten the array into a single author object
+      }
+    ]);
     if (!book) {
       return next(createHttpError(404, "Book not found."));
     }
@@ -290,4 +324,4 @@ const filterBook = async (req: Request, res: Response, next: NextFunction) => {
 
 
 
-export { createBook, updateBook, listBooks, getSingleBook, deleteBook, filterBook };
+export { createBook, updateBook, listMyBooks, getSingleBook, deleteBook, filterBook, listAllBooks };

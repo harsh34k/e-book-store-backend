@@ -5,7 +5,8 @@ import {
   deleteBook,
   filterBook,
   getSingleBook,
-  listBooks,
+  listAllBooks,
+  listMyBooks,
   updateBook,
 } from "./bookController";
 import multer from "multer";
@@ -41,7 +42,8 @@ bookRouter.patch(
   updateBook
 );
 
-bookRouter.get("/", authenticate, listBooks);
+bookRouter.get("/", authenticate, listMyBooks);
+bookRouter.get("/all", listAllBooks);
 bookRouter.get("/:bookId", getSingleBook);
 
 
