@@ -79,7 +79,7 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return next(createHttpError(400, "Username or password incorrect!"));
+      return next(createHttpError(400, "Username or password incorrect from hashedPassword!"));
     }
 
     // Create accesstoken
