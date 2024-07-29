@@ -1,4 +1,4 @@
-import app from "./src/app";
+import app from "./src/index";
 import { config } from "./src/config/config";
 import connectDB from "./src/config/db";
 
