@@ -4,7 +4,7 @@
   "description": "This is a ebook api project",
   "main": "index.js",
   "scripts": {
-    "dev": "node server.ts",
+    "dev": "nodemon server.ts",
     "start": "node server.ts",
     "build": "tsc"
   },
@@ -27,7 +27,7 @@
     "@vercel/node": "^3.2.7",
     "nodemon": "^3.1.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.4"
+    "typescript": "^5.5.4"
   },
   "dependencies": {
     "@types/cors": "^2.8.17",
